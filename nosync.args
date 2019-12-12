@@ -1,5 +1,5 @@
-enable_ac3_eac3_audio_demuxing = true
-enable_hevc_demuxing = true
+enable_platform_ac3_eac3_audio = true
+enable_platform_hevc = true
 enable_iterator_debugging = false
 enable_mse_mpeg2ts_stream_parser = true
 enable_nacl = true
@@ -24,7 +24,7 @@ current_cpu = "x64"
 enable_resource_whitelist_generation = false
 visual_studio_version = "2017"
 blink_symbol_level = 0
-enable_mpeg_h_audio_demuxing = true
+enable_platform_mpeg_h_audio = true
 enable_reporting = false
 pgo_build = true
 rtc_build_examples = false
