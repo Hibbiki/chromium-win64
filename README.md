@@ -9,7 +9,6 @@ Stable Chromium builds for Windows 64-bit, nothing fancy.
 - Channel unset (this allows for installing extensions outside Web Store)
 - thinLTO enabled
 - PGO phase 1
-- Full WPO
 - LLD enabled
 - Official Build configuration
 
