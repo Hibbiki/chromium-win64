@@ -2,13 +2,13 @@
 Stable Chromium builds for Windows 64-bit, nothing fancy.
 
 ## General build configuration
-- Visual Studio 2017
+- Visual Studio 2019 + SDK 10.1.18362.1
 - Propertiary codecs enabled
 - H.264 enabled
 - Field trials disabled
 - Channel unset (this allows for installing extensions outside Web Store)
 - thinLTO enabled
-- PGO phase 1
+- PGO disabled
 - LLD enabled
 - Official Build configuration
 
@@ -18,6 +18,6 @@ Stable Chromium builds for Windows 64-bit, nothing fancy.
 - H.264 in WebRTC enabled
 
 ### Builds without sync
-- No Google API keys (set to "no")
 - No Widevine support
+- No Google API keys (set to "no")
 - H.264 in WebRTC disabled
