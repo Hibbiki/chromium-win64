@@ -17,7 +17,6 @@ google_default_client_id = "no"
 google_default_client_secret = "no"
 use_official_google_api_keys = false
 use_openh264 = true
-chrome_pgo_phase = 0
 is_official_build = true
 current_cpu = "x64"
 enable_resource_whitelist_generation = false

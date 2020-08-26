@@ -14,7 +14,6 @@ enable_widevine = true
 rtc_use_h264 = true
 use_official_google_api_keys = true
 use_openh264 = true
-chrome_pgo_phase = 0
 is_official_build = true
 current_cpu = "x64"
 enable_resource_whitelist_generation = false
