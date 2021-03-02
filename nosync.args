@@ -16,7 +16,6 @@ google_api_key = "no"
 google_default_client_id = "no"
 google_default_client_secret = "no"
 use_official_google_api_keys = false
-use_openh264 = true
 is_official_build = true
 current_cpu = "x64"
 enable_resource_allowlist_generation = false
