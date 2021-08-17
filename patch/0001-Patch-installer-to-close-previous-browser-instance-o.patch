@@ -1,0 +1,93 @@
+From 2fe2f16efd8fbf2f39126bc2d803b6f0fac48a68 Mon Sep 17 00:00:00 2001
+From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
+Date: Thu, 5 Aug 2021 02:09:34 +0200
+Subject: [PATCH] Patch installer to close previous browser instance on
+ system-level install
+
+---
+ chrome/installer/setup/install_worker.cc | 48 ++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
+
+diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
+index 6e3fba460233e..f2381bb1ae3db 100644
+--- a/chrome/installer/setup/install_worker.cc
++++ b/chrome/installer/setup/install_worker.cc
+@@ -23,6 +23,8 @@
+ #include "base/command_line.h"
+ #include "base/files/file_path.h"
+ #include "base/files/file_util.h"
++#include "base/process/kill.h"
++#include "base/process/process_iterator.h"
+ #include "base/logging.h"
+ #include "base/metrics/histogram_functions.h"
+ #include "base/strings/string_util.h"
+@@ -59,6 +61,7 @@
+ #include "chrome/installer/util/shell_util.h"
+ #include "chrome/installer/util/util_constants.h"
+ #include "chrome/installer/util/work_item_list.h"
++#include "content/public/common/result_codes.h"
+ 
+ using base::ASCIIToWide;
+ using base::win::RegKey;
+@@ -213,6 +216,46 @@ void AddDeleteUninstallEntryForMSIWorkItems(
+   delete_reg_key->set_best_effort(true);
+ }
+ 
++// Filter for processes whose base name matches and whose path starts with a
++// specified prefix.
++class ProcessPathPrefixFilter : public base::ProcessFilter {
++ public:
++  explicit ProcessPathPrefixFilter(
++      const base::FilePath::StringPieceType& process_path_prefix)
++      : process_path_prefix_(process_path_prefix) {}
++
++  // base::ProcessFilter:
++  bool Includes(const base::ProcessEntry& entry) const override {
++    // Test if |entry|'s file path starts with the prefix we're looking for.
++    base::Process process(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION,
++                                        FALSE, entry.th32ProcessID));
++    if (!process.IsValid())
++      return false;
++
++    DWORD path_len = MAX_PATH;
++    wchar_t path_string[MAX_PATH];
++    if (::QueryFullProcessImageName(process.Handle(), 0, path_string,
++                                    &path_len)) {
++      base::FilePath file_path(path_string);
++      return base::StartsWith(file_path.value(), process_path_prefix_,
++                              base::CompareCase::INSENSITIVE_ASCII);
++    }
++    PLOG(WARNING) << "QueryFullProcessImageName failed for PID "
++                  << entry.th32ProcessID;
++    return false;
++  }
++
++ private:
++  const base::FilePath::StringPieceType process_path_prefix_;
++};
++
++// Gracefully closes previous Chrome process in |target_path|.
++void ClosePreviousChromeProcess(const base::FilePath& target_path) {
++  ProcessPathPrefixFilter target_path_filter(target_path.value());
++  base::CleanupProcesses(installer::kChromeExe, base::TimeDelta(),
++                         content::RESULT_CODE_NORMAL_EXIT, &target_path_filter);
++}
++
+ // Adds Chrome specific install work items to |install_list|.
+ void AddChromeWorkItems(const InstallParams& install_params,
+                         WorkItemList* install_list) {
+@@ -225,6 +268,11 @@ void AddChromeWorkItems(const InstallParams& install_params,
+ 
+   const base::FilePath& target_path = installer_state.target_path();
+ 
++  // patch(Hibbiki): Close previous instance on system-install as we are missing
++  // required GoogleUpdate component to elevate and rename new_chrome.exe on exit.
++  if (installer_state.system_install())
++    ClosePreviousChromeProcess(target_path);
++
+   if (current_version.IsValid()) {
+     // Delete the archive from an existing install to save some disk space.
+     base::FilePath old_installer_dir(
+-- 
+2.30.2.windows.1
+
