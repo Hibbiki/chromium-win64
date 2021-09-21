@@ -27,8 +27,8 @@ index 6e3fba460233e..f2381bb1ae3db 100644
  #include "chrome/installer/util/work_item_list.h"
 +#include "content/public/common/result_codes.h"
  
- using base::ASCIIToWide;
- using base::win::RegKey;
+ #if BUILDFLAG(USE_GOOGLE_UPDATE_INTEGRATION)
+ #include "chrome/installer/setup/channel_override_work_item.h"
 @@ -213,6 +216,46 @@ void AddDeleteUninstallEntryForMSIWorkItems(
    delete_reg_key->set_best_effort(true);
  }
