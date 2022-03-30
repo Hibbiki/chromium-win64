@@ -2,13 +2,10 @@
 Stable Chromium builds for Windows 64-bit, nothing fancy.
 
 ## General build configuration
-- Visual Studio 2019 v16.7.2 + SDK 10.0.19041.0
-- Propertiary codecs enabled
-- H.264 enabled
+- Visual Studio 2019 v16.11.11 + SDK 10.0.19041.0
+- Propertiary codecs and H.264 enabled
 - Field trials disabled
 - Channel unset (this allows for installing extensions outside Web Store)
-- thinLTO enabled
-- LLD enabled
 - Official Build configuration
 
 ### Builds with sync

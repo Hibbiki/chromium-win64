@@ -28,5 +28,4 @@ is_chrome_branded = false
 disable_fieldtrial_testing_config = true
 use_thin_lto = true
 use_lld = true
-enable_debugallocation = false
 enable_profiling = false
