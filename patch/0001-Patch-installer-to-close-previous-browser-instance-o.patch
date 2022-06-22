@@ -1,19 +1,20 @@
-From 2fe2f16efd8fbf2f39126bc2d803b6f0fac48a68 Mon Sep 17 00:00:00 2001
+From f5b1c212b8aeb56c20b763623bf3973d91445ec4 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 5 Aug 2021 02:09:34 +0200
 Subject: [PATCH] Patch installer to close previous browser instance on
  system-level install
 
+Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
  chrome/installer/setup/install_worker.cc | 48 ++++++++++++++++++++++++
  1 file changed, 48 insertions(+)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index 6e3fba460233e..f2381bb1ae3db 100644
+index b87def50d9ece..0d6bbd526e659 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
-@@ -23,6 +23,8 @@
- #include "base/command_line.h"
+@@ -24,6 +24,8 @@
+ #include "base/enterprise_util.h"
  #include "base/files/file_path.h"
  #include "base/files/file_util.h"
 +#include "base/process/kill.h"
@@ -21,7 +22,7 @@ index 6e3fba460233e..f2381bb1ae3db 100644
  #include "base/logging.h"
  #include "base/metrics/histogram_functions.h"
  #include "base/strings/string_util.h"
-@@ -59,6 +61,7 @@
+@@ -60,6 +62,7 @@
  #include "chrome/installer/util/shell_util.h"
  #include "chrome/installer/util/util_constants.h"
  #include "chrome/installer/util/work_item_list.h"
@@ -29,7 +30,7 @@ index 6e3fba460233e..f2381bb1ae3db 100644
  
  #if BUILDFLAG(USE_GOOGLE_UPDATE_INTEGRATION)
  #include "chrome/installer/setup/channel_override_work_item.h"
-@@ -213,6 +216,46 @@ void AddDeleteUninstallEntryForMSIWorkItems(
+@@ -218,6 +221,46 @@ void AddDeleteUninstallEntryForMSIWorkItems(
    delete_reg_key->set_best_effort(true);
  }
  
@@ -76,7 +77,7 @@ index 6e3fba460233e..f2381bb1ae3db 100644
  // Adds Chrome specific install work items to |install_list|.
  void AddChromeWorkItems(const InstallParams& install_params,
                          WorkItemList* install_list) {
-@@ -225,6 +268,11 @@ void AddChromeWorkItems(const InstallParams& install_params,
+@@ -230,6 +273,11 @@ void AddChromeWorkItems(const InstallParams& install_params,
  
    const base::FilePath& target_path = installer_state.target_path();
  
@@ -89,5 +90,5 @@ index 6e3fba460233e..f2381bb1ae3db 100644
      // Delete the archive from an existing install to save some disk space.
      base::FilePath old_installer_dir(
 -- 
-2.30.2.windows.1
+2.35.1.windows.2
 
