@@ -2,8 +2,8 @@
 Stable Chromium builds for Windows 64-bit, nothing fancy.
 
 ## General build configuration
-- Visual Studio 2019 v16.11.15 + SDK 10.0.20348.0
-- Propertiary codecs and H.264 enabled
+- Visual Studio 2022 v17.4.4 + SDK 10.0.20348.0
+- Propertiary codecs, H.264 and HEVC enabled
 - Field trials disabled
 - Channel unset (this allows for installing extensions outside Web Store)
 - Official Build configuration
