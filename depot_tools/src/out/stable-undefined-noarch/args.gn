@@ -1,1 +1,5 @@
-# Set build arguments here. See `gn help buildargs`.
+is_component_build = false
+is_debug = false
+is_official_build = true
+visual_studio_version = "2022"
+is_chrome_branded = false
