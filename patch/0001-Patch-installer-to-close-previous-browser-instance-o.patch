@@ -1,7 +1,7 @@
-From 59723b7e46c8ef1676c61f92d3f3af92cbc36d45 Mon Sep 17 00:00:00 2001
+From 57e1fd1693378c7b15da49013f2e18ba90f5aab1 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 5 Aug 2021 02:09:34 +0200
-Subject: [PATCH] Patch installer to close previous browser instance on
+Subject: [PATCH 1/2] Patch installer to close previous browser instance on
  system-level install
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
@@ -10,10 +10,10 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 48 insertions(+)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index d04ab030aab87..fb7d0a38fa579 100644
+index c7433a43de9a5..0dc624604fdb8 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
-@@ -26,6 +26,8 @@
+@@ -28,6 +28,8 @@
  #include "base/functional/callback_helpers.h"
  #include "base/logging.h"
  #include "base/metrics/histogram_functions.h"
@@ -22,7 +22,7 @@ index d04ab030aab87..fb7d0a38fa579 100644
  #include "base/strings/string_util.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/version.h"
-@@ -35,6 +37,7 @@
+@@ -37,6 +39,7 @@
  #include "base/win/win_util.h"
  #include "base/win/windows_version.h"
  #include "build/branding_buildflags.h"
@@ -30,7 +30,7 @@ index d04ab030aab87..fb7d0a38fa579 100644
  #include "chrome/install_static/buildflags.h"
  #include "chrome/install_static/install_details.h"
  #include "chrome/install_static/install_modes.h"
-@@ -219,6 +222,46 @@ void AddDeleteUninstallEntryForMSIWorkItems(
+@@ -221,6 +224,46 @@ void AddDeleteUninstallEntryForMSIWorkItems(
    delete_reg_key->set_best_effort(true);
  }
  
@@ -77,7 +77,7 @@ index d04ab030aab87..fb7d0a38fa579 100644
  // Adds Chrome specific install work items to |install_list|.
  void AddChromeWorkItems(const InstallParams& install_params,
                          WorkItemList* install_list) {
-@@ -231,6 +274,11 @@ void AddChromeWorkItems(const InstallParams& install_params,
+@@ -233,6 +276,11 @@ void AddChromeWorkItems(const InstallParams& install_params,
  
    const base::FilePath& target_path = installer_state.target_path();
  

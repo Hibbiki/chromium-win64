@@ -1,0 +1,47 @@
+From d02dfce2fa92918792b86d4b78ad64aa3c27087b Mon Sep 17 00:00:00 2001
+From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
+Date: Sat, 22 Jul 2023 01:33:35 +0200
+Subject: [PATCH 2/2] Ensure bogus ElevationService is not being created during
+ install
+
+Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
+---
+ chrome/installer/setup/install_worker.cc | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
+index 0dc624604fdb8..eef6a2bdbfac9 100644
+--- a/chrome/installer/setup/install_worker.cc
++++ b/chrome/installer/setup/install_worker.cc
+@@ -348,6 +348,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
+       ->set_best_effort(true);
+ }
+ 
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ // Adds work items to register the Elevation Service with Windows. Only for
+ // system level installs.
+ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
+@@ -369,6 +370,7 @@ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
+   install_service_work_item->set_best_effort(true);
+   list->AddWorkItem(install_service_work_item);
+ }
++#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING
+ 
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ // Adds work items to add the "store-dmtoken" command to Chrome's version key.
+@@ -994,10 +996,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
+       installer_state.root_key(),
+       GetNotificationHelperPath(target_path, new_version), install_list);
+ 
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   if (installer_state.system_install()) {
+     AddElevationServiceWorkItems(
+         GetElevationServicePath(target_path, new_version), install_list);
+   }
++#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING
+ 
+   AddUpdateDowngradeVersionItem(installer_state.root_key(), current_version,
+                                 new_version, install_list);
+-- 
+2.39.1.windows.1
+
