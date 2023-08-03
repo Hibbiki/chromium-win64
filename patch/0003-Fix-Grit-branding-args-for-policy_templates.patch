@@ -1,0 +1,118 @@
+From 33276d696b8fdb4c990a73ad4e4d87e028f4497e Mon Sep 17 00:00:00 2001
+From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
+Date: Thu, 3 Aug 2023 11:25:53 +0200
+Subject: [PATCH 3/3] Fix Grit branding args for policy_templates
+
+---
+ .../template_writers/writer_configuration.py  | 81 +++++++++----------
+ 1 file changed, 38 insertions(+), 43 deletions(-)
+
+diff --git a/components/policy/tools/template_writers/writer_configuration.py b/components/policy/tools/template_writers/writer_configuration.py
+index 259e467fee3e9..c14b2b5bcc4be 100755
+--- a/components/policy/tools/template_writers/writer_configuration.py
++++ b/components/policy/tools/template_writers/writer_configuration.py
+@@ -10,9 +10,6 @@ def GetConfigurationForBuild(defines):
+ 
+   Args:
+     defines: Definitions coming from the build system.
+-
+-  Raises:
+-    Exception: If 'defines' contains an unknown build-type.
+   '''
+   # The prefix of key names in config determines which writer will use their
+   # corresponding values:
+@@ -24,45 +21,7 @@ def GetConfigurationForBuild(defines):
+   # Google:Cat_Google references the external google.admx file.
+   # category_path_strings strings in curly braces are looked up from localized
+   # 'messages' in policy_templates.json.
+-  if '_chromium' in defines:
+-    config = {
+-        'build': 'chromium',
+-        'app_name': 'Chromium',
+-        'doc_url': 'https://chromeenterprise.google/policies/',
+-        'frame_name': 'Chromium Frame',
+-        'os_name': 'ChromiumOS',
+-        'webview_name': 'Chromium WebView',
+-        'win_config': {
+-            'win': {
+-                'reg_mandatory_key_name': 'Software\\Policies\\Chromium',
+-                'reg_recommended_key_name':
+-                'Software\\Policies\\Chromium\\Recommended',
+-                'mandatory_category_path': ['chromium'],
+-                'recommended_category_path': ['chromium_recommended'],
+-                'category_path_strings': {
+-                    'chromium': 'Chromium',
+-                    'chromium_recommended': 'Chromium - {doc_recommended}',
+-                },
+-                'namespace': 'Chromium.Policies.Chromium',
+-            },
+-            'chrome_os': {
+-                'reg_mandatory_key_name': 'Software\\Policies\\ChromiumOS',
+-                'reg_recommended_key_name':
+-                'Software\\Policies\\ChromiumOS\\Recommended',
+-                'mandatory_category_path': ['chromium_os'],
+-                'recommended_category_path': ['chromium_os_recommended'],
+-                'category_path_strings': {
+-                    'chromium_os': 'ChromiumOS',
+-                    'chromium_os_recommended': 'ChromiumOS - {doc_recommended}',
+-                },
+-                'namespace': 'Chromium.Policies.ChromiumOS'
+-            },
+-        },
+-        'admx_prefix': 'chromium',
+-        'linux_policy_path': '/etc/chromium/policies/',
+-        'bundle_id': 'org.chromium',
+-    }
+-  elif '_google_chrome' in defines:
++  if '_google_chrome' in defines and defines['_google_chrome'] == True:
+     config = {
+         'build': 'chrome',
+         'app_name': 'Google Chrome',
+@@ -120,7 +79,43 @@ def GetConfigurationForBuild(defines):
+         'bundle_id': 'com.google.chrome.ios',
+     }
+   else:
+-    raise Exception('Unknown build')
++    config = {
++        'build': 'chromium',
++        'app_name': 'Chromium',
++        'doc_url': 'https://chromeenterprise.google/policies/',
++        'frame_name': 'Chromium Frame',
++        'os_name': 'ChromiumOS',
++        'webview_name': 'Chromium WebView',
++        'win_config': {
++            'win': {
++                'reg_mandatory_key_name': 'Software\\Policies\\Chromium',
++                'reg_recommended_key_name':
++                'Software\\Policies\\Chromium\\Recommended',
++                'mandatory_category_path': ['chromium'],
++                'recommended_category_path': ['chromium_recommended'],
++                'category_path_strings': {
++                    'chromium': 'Chromium',
++                    'chromium_recommended': 'Chromium - {doc_recommended}',
++                },
++                'namespace': 'Chromium.Policies.Chromium',
++            },
++            'chrome_os': {
++                'reg_mandatory_key_name': 'Software\\Policies\\ChromiumOS',
++                'reg_recommended_key_name':
++                'Software\\Policies\\ChromiumOS\\Recommended',
++                'mandatory_category_path': ['chromium_os'],
++                'recommended_category_path': ['chromium_os_recommended'],
++                'category_path_strings': {
++                    'chromium_os': 'ChromiumOS',
++                    'chromium_os_recommended': 'ChromiumOS - {doc_recommended}',
++                },
++                'namespace': 'Chromium.Policies.ChromiumOS'
++            },
++        },
++        'admx_prefix': 'chromium',
++        'linux_policy_path': '/etc/chromium/policies/',
++        'bundle_id': 'org.chromium',
++    }
+   if 'version' in defines:
+     config['version'] = defines['version']
+   if 'major_version' in defines:
+-- 
+2.39.1.windows.1
+
