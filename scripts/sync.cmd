@@ -3,7 +3,7 @@
 IF NOT DEFINED IN_CHROMIUM_BUILDER (goto :EOF)
 cd %CHROMIUM_DIR%\depot_tools
 
-FOR /F "tokens=* USEBACKQ" %%F IN (`bash stable.sh`) DO (
+FOR /F "tokens=* USEBACKQ" %%F IN (`bash stable.sh %*`) DO (
   SET rev=%%F
 )
 
