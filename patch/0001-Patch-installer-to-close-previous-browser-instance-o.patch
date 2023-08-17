@@ -1,7 +1,7 @@
 From 7a0df672b4b58f2647393a49ff7f6376a987541c Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 5 Aug 2021 02:09:34 +0200
-Subject: [PATCH 1/3] Patch installer to close previous browser instance on
+Subject: [PATCH 1/4] Patch installer to close previous browser instance on
  system-level install
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>

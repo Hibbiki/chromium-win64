@@ -1,7 +1,7 @@
 From 33276d696b8fdb4c990a73ad4e4d87e028f4497e Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 3 Aug 2023 11:25:53 +0200
-Subject: [PATCH 3/3] Fix Grit branding args for policy_templates
+Subject: [PATCH 3/4] Fix Grit branding args for policy_templates
 
 ---
  .../template_writers/writer_configuration.py  | 81 +++++++++----------

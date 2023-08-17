@@ -1,7 +1,7 @@
 From 90c7bf7f5e808b1662101816139035543c92ddeb Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
-Subject: [PATCH 2/3] Ensure bogus ElevationService is not being created during
+Subject: [PATCH 2/4] Ensure bogus ElevationService is not being created during
  install
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
