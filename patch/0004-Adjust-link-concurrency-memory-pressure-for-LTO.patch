@@ -1,8 +1,9 @@
-From 02c9407667007477a50917a159097818408c877f Mon Sep 17 00:00:00 2001
+From e9c6b574a84953b23c79e4c353d2c449da52ae66 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 3 Aug 2023 12:36:19 +0200
 Subject: [PATCH 4/4] Adjust link concurrency memory pressure for LTO
 
+Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
  build/toolchain/concurrent_links.gni | 49 +++++++++++++---------------
  1 file changed, 22 insertions(+), 27 deletions(-)
@@ -99,5 +100,5 @@ index e3590228e347a..4843efd76e391 100644
  
    # For Android builds, we also need to be wary of:
 -- 
-2.39.1.windows.1
+2.41.0.windows.1
 

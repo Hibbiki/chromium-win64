@@ -1,4 +1,4 @@
-From 90c7bf7f5e808b1662101816139035543c92ddeb Mon Sep 17 00:00:00 2001
+From a4180358137517bb1c17ede6759921f3f275afb6 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
 Subject: [PATCH 2/4] Ensure bogus ElevationService is not being created during
@@ -10,7 +10,7 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index 0dc624604fdb8..eef6a2bdbfac9 100644
+index e3cd00facf5ae..50caffa25b196 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
 @@ -348,6 +348,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
@@ -43,5 +43,5 @@ index 0dc624604fdb8..eef6a2bdbfac9 100644
    AddUpdateDowngradeVersionItem(installer_state.root_key(), current_version,
                                  new_version, install_list);
 -- 
-2.39.1.windows.1
+2.41.0.windows.1
 
