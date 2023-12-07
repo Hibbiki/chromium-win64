@@ -2,7 +2,6 @@ enable_platform_ac3_eac3_audio = true
 enable_platform_hevc = true
 enable_iterator_debugging = false
 enable_mse_mpeg2ts_stream_parser = true
-enable_nacl = true
 ffmpeg_branding = "Chrome"
 is_component_build = false
 is_debug = false
