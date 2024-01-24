@@ -1,7 +1,7 @@
-From 9bfca57e5194ae98080e23580c5fb86d7647b9bc Mon Sep 17 00:00:00 2001
+From 38dde6aded5bb5913615c6a74dfdf15361594af1 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 3 Aug 2023 11:25:53 +0200
-Subject: [PATCH 3/4] Fix Grit branding args for policy_templates
+Subject: [PATCH 3/3] Fix Grit branding args for policy_templates
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 38 insertions(+), 43 deletions(-)
 
 diff --git a/components/policy/tools/template_writers/writer_configuration.py b/components/policy/tools/template_writers/writer_configuration.py
-index 02683fac01862..1cb3bbd69fb48 100755
+index 8cb77158561d3..edd529b4753de 100755
 --- a/components/policy/tools/template_writers/writer_configuration.py
 +++ b/components/policy/tools/template_writers/writer_configuration.py
 @@ -10,9 +10,6 @@ def GetConfigurationForBuild(defines):
@@ -66,10 +66,10 @@ index 02683fac01862..1cb3bbd69fb48 100755
 -    }
 -  elif '_google_chrome' in defines or '_is_chrome_for_testing_branded' in defines:
 +  if defines.get('_google_chrome', False) == True or defines.get('_is_chrome_for_testing_branded', False) == True:
+     linux_policy_path = '/etc/opt/chrome/policies/' if '_google_chrome' in defines else '/etc/opt/chrome_for_testing/policies/'
      config = {
          'build': 'chrome',
-         'app_name': 'Google Chrome',
-@@ -120,7 +79,43 @@ def GetConfigurationForBuild(defines):
+@@ -121,7 +80,43 @@ def GetConfigurationForBuild(defines):
          'bundle_id': 'com.google.chrome.ios',
      }
    else:

@@ -1,7 +1,7 @@
-From a4180358137517bb1c17ede6759921f3f275afb6 Mon Sep 17 00:00:00 2001
+From 49c45bbac5719149d1c9d0c50e7f169802428cf5 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
-Subject: [PATCH 2/4] Ensure bogus ElevationService is not being created during
+Subject: [PATCH 2/3] Ensure bogus ElevationService is not being created during
  install
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
@@ -10,10 +10,10 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index e3cd00facf5ae..50caffa25b196 100644
+index 68732e8b1e3d0..be5818e314930 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
-@@ -348,6 +348,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
+@@ -347,6 +347,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
        ->set_best_effort(true);
  }
  
@@ -21,7 +21,7 @@ index e3cd00facf5ae..50caffa25b196 100644
  // Adds work items to register the Elevation Service with Windows. Only for
  // system level installs.
  void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
-@@ -369,6 +370,7 @@ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
+@@ -368,6 +369,7 @@ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
    install_service_work_item->set_best_effort(true);
    list->AddWorkItem(install_service_work_item);
  }
@@ -29,7 +29,7 @@ index e3cd00facf5ae..50caffa25b196 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  // Adds work items to add the "store-dmtoken" command to Chrome's version key.
-@@ -994,10 +996,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
+@@ -990,10 +992,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
        installer_state.root_key(),
        GetNotificationHelperPath(target_path, new_version), install_list);
  
