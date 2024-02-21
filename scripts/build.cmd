@@ -11,5 +11,5 @@ cmd /c "autoninja -C out/stable-nosync-x64 mini_installer.exe"
 
 cmd /c "gn clean out\stable-undefined-noarch"
 cmd /c "gn gen out\stable-undefined-noarch"
-cmd /c "autoninja -C out/stable-undefined-noarch generate_version_info policy_templates pack_policy_templates"
+cmd /c "autoninja -C out/stable-undefined-noarch policy_templates pack_policy_templates"
 cd ..
