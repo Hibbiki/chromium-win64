@@ -1,0 +1,117 @@
+From 7a93c6d502104435856369404662a7aea6438d02 Mon Sep 17 00:00:00 2001
+From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
+Date: Wed, 12 Jun 2024 02:14:41 +0200
+Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
+
+Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
+---
+ .../install_static/chromium_install_modes.cc  |  3 +--
+ chrome/updater/BUILD.gn                       |  1 +
+ chrome/updater/win/installer/installer.cc     | 10 +++++++++
+ chrome/updater/win/signing/sign.py            | 21 ++-----------------
+ 4 files changed, 14 insertions(+), 21 deletions(-)
+
+diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
+index 3b547d0236cdb..3b61fa1a97af4 100644
+--- a/chrome/install_static/chromium_install_modes.cc
++++ b/chrome/install_static/chromium_install_modes.cc
+@@ -32,8 +32,7 @@ const InstallConstants kInstallModes[] = {
+         .install_suffix =
+             L"",  // Empty install_suffix for the primary install mode.
+         .logo_suffix = L"",  // No logo suffix for the primary install mode.
+-        .app_guid =
+-            L"",  // Empty app_guid since no integration with Google Update.
++        .app_guid = L"{7D2B3E1D-D096-4594-9D8F-A6667F12E0AC}",
+         .base_app_name = L"Chromium",              // A distinct base_app_name.
+         .base_app_id = L"Chromium",                // A distinct base_app_id.
+         .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
+diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
+index 2f2bd64e0abaf..d67991d98e997 100644
+--- a/chrome/updater/BUILD.gn
++++ b/chrome/updater/BUILD.gn
+@@ -302,6 +302,7 @@ if (is_win || is_mac || is_linux) {
+         "//chrome/installer/util:constants",
+         "//chrome/installer/util:metainstaller_utils",
+         "//chrome/installer/util:work_item",
++        "//chrome/install_static:install_static_util",
+         "//chrome/updater/app/server/win:updater_idl",
+         "//chrome/updater/app/server/win:updater_idl_system",
+         "//chrome/updater/app/server/win:updater_idl_user",
+diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
+index a568dbd7e64db..bf19b0695b1bb 100644
+--- a/chrome/updater/win/installer/installer.cc
++++ b/chrome/updater/win/installer/installer.cc
+@@ -28,6 +28,7 @@
+ #include "base/logging.h"
+ #include "base/path_service.h"
+ #include "base/strings/strcat.h"
++#include "base/strings/stringprintf.h"
+ #include "base/strings/sys_string_conversions.h"
+ #include "base/threading/platform_thread.h"
+ #include "base/time/time.h"
+@@ -36,6 +37,7 @@
+ #include "base/win/scoped_localalloc.h"
+ #include "base/win/windows_version.h"
+ #include "chrome/installer/util/lzma_util.h"
++#include "chrome/install_static/install_modes.h"
+ #include "chrome/updater/constants.h"
+ #include "chrome/updater/tag.h"
+ #include "chrome/updater/updater_branding.h"
+@@ -56,11 +58,19 @@ namespace {
+ // program file image used to create this process. The implementation of this
+ // function only handles UTF8 tags.
+ std::string ExtractTag() {
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   PathString path;
+   return (::GetModuleFileName(nullptr, path.get(), path.capacity()) > 0 &&
+           ::GetLastError() == ERROR_SUCCESS)
+              ? tagging::BinaryReadTagString(base::FilePath(path.get()))
+              : std::string();
++#elif BUILDFLAG(GOOGLE_CHROME_FOR_TESTING_BRANDING)
++  const install_static::InstallConstants& mode = install_static::kInstallModes[install_static::GOOGLE_CHROME_FOR_TESTING_INDEX];
++  return base::StringPrintf("appguid=%S&appname=%S", mode.app_guid, mode.base_app_id);
++#else
++  const install_static::InstallConstants& mode = install_static::kInstallModes[install_static::CHROMIUM_INDEX];
++  return base::StringPrintf("appguid=%S&appname=%S", mode.app_guid, mode.base_app_id);
++#endif
+ }
+ }  // namespace
+ 
+diff --git a/chrome/updater/win/signing/sign.py b/chrome/updater/win/signing/sign.py
+index cba81493ba2fa..722edb1a4012f 100755
+--- a/chrome/updater/win/signing/sign.py
++++ b/chrome/updater/win/signing/sign.py
+@@ -98,28 +98,11 @@ class Signer:
+         self._sign_flags = sign_flags
+ 
+     def _add_tagging_cert(self, in_file, out_file):
+-        """Adds the tagging cert. Returns the path to the tagged file."""
+-        subprocess.run(
+-            [self._tagging_exe, '--set-tag',
+-             '--out=%s' % out_file, in_file],
+-            check=True)
++        shutil.copy(in_file, out_file)
+         return out_file
+ 
+     def _sign_item(self, in_file):
+-        """Sign an executable in-place."""
+-        # Retries may be required: lore states the timestamp server is flaky.
+-        for flags in self._sign_flags:
+-            command = [self._signtool_exe, 'sign']
+-            command += flags
+-            if self._certificate_file_path:
+-                command += ['/f', self._certificate_file_path]
+-            if self._certificate_password:
+-                command += ['/p', self._certificate_password]
+-            if self._identity:
+-                command += ['/s', 'My', '/n', self._identity]
+-
+-            command += [in_file]
+-            subprocess.run(command, check=True)
++        return
+ 
+     def _generate_target_manifest(self, appid, installer_path, manifest_path,
+                                   manifest_dict_replacements):
+-- 
+2.41.0.windows.1
+

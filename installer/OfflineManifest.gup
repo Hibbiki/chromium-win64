@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="3.0">
+  <systemrequirements platform="win" arch="${ARCH_REQUIREMENT}" min_os_version="10.0"/>
+  <app appid="${APP_ID}" status="ok">
+    <updatecheck status="ok">
+      <manifest version="${INSTALLER_VERSION}">
+        <packages>
+          <package name="${INSTALLER_FILENAME}" hash_sha256="${INSTALLER_HASH_SHA256}" size="${INSTALLER_SIZE}" required="true"/>
+        </packages>
+        <actions>
+          <action event="install" run="${INSTALLER_FILENAME}" arguments="--do-not-launch-chrome" needsadmin="false"/>
+          <action event="postinstall" onsuccess="exitsilentlyonlaunchcmd"/>
+        </actions>
+      </manifest>
+    </updatecheck>
+  </app>
+</response>
