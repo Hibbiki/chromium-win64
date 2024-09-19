@@ -2,7 +2,7 @@
 Stable Chromium builds for Windows 64-bit, nothing fancy.
 
 ## Build setup
-Built using Visual Studio 2022 v17.5.3 + SDK 10.0.22621.0 on Windows 10 virtual machine.
+Built using Visual Studio 2022 v17.11.4 + SDK 10.0.22621.0 on Windows 10 virtual machine.
 
 ## General configuration
 - H.264, HEVC and other proprietary codecs enabled
