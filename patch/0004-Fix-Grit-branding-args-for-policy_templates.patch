@@ -1,4 +1,4 @@
-From fd719df89a42bdd2563a9c0ab26d8f80632c5f6f Mon Sep 17 00:00:00 2001
+From a30d22ebc2b8b6c916ff41feb5502dc7adc81132 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 3 Aug 2023 11:25:53 +0200
 Subject: [PATCH 4/4] Fix Grit branding args for policy_templates

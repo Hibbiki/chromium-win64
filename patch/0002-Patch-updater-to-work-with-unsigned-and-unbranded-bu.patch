@@ -1,18 +1,31 @@
-From 7a93c6d502104435856369404662a7aea6438d02 Mon Sep 17 00:00:00 2001
+From 47718cda4d686cf8429a16f9c8d2cc0524374235 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
+ build/config/unsafe_buffers_paths.txt         |  1 +
  .../install_static/chromium_install_modes.cc  |  3 +--
  chrome/updater/BUILD.gn                       |  1 +
  chrome/updater/win/installer/installer.cc     | 10 +++++++++
  chrome/updater/win/signing/sign.py            | 21 ++-----------------
- 4 files changed, 14 insertions(+), 21 deletions(-)
+ 5 files changed, 15 insertions(+), 21 deletions(-)
 
+diff --git a/build/config/unsafe_buffers_paths.txt b/build/config/unsafe_buffers_paths.txt
+index 99e985eacda99..551534e5bb5ca 100644
+--- a/build/config/unsafe_buffers_paths.txt
++++ b/build/config/unsafe_buffers_paths.txt
+@@ -143,6 +143,7 @@
+ # Removing this directory may fail on the bot CI bot:
+ # https://luci-milo.appspot.com/ui/p/chrome/builders/official/win-arm64-clang
+ -chrome/installer/
++-chrome/updater/
+ 
+ # //codelabs is a directory that contains examples for developers to modify as
+ # they learn about chromium development. This is indefinitely opt-out because
 diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
-index 3b547d0236cdb..3b61fa1a97af4 100644
+index 3ebf6fade3b81..7eef23b8ecb68 100644
 --- a/chrome/install_static/chromium_install_modes.cc
 +++ b/chrome/install_static/chromium_install_modes.cc
 @@ -32,8 +32,7 @@ const InstallConstants kInstallModes[] = {
@@ -26,10 +39,10 @@ index 3b547d0236cdb..3b61fa1a97af4 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 2f2bd64e0abaf..d67991d98e997 100644
+index 685413cefd768..599970e3374cd 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -302,6 +302,7 @@ if (is_win || is_mac || is_linux) {
+@@ -308,6 +308,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -38,7 +51,7 @@ index 2f2bd64e0abaf..d67991d98e997 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index a568dbd7e64db..bf19b0695b1bb 100644
+index 0eb33d5298c6d..57f478898c4f5 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -28,6 +28,7 @@
@@ -49,7 +62,7 @@ index a568dbd7e64db..bf19b0695b1bb 100644
  #include "base/strings/sys_string_conversions.h"
  #include "base/threading/platform_thread.h"
  #include "base/time/time.h"
-@@ -36,6 +37,7 @@
+@@ -37,6 +38,7 @@
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
@@ -57,7 +70,7 @@ index a568dbd7e64db..bf19b0695b1bb 100644
  #include "chrome/updater/constants.h"
  #include "chrome/updater/tag.h"
  #include "chrome/updater/updater_branding.h"
-@@ -56,11 +58,19 @@ namespace {
+@@ -59,11 +61,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
@@ -78,7 +91,7 @@ index a568dbd7e64db..bf19b0695b1bb 100644
  }  // namespace
  
 diff --git a/chrome/updater/win/signing/sign.py b/chrome/updater/win/signing/sign.py
-index cba81493ba2fa..722edb1a4012f 100755
+index fe16f52a91ec0..1fd3fae8c4484 100755
 --- a/chrome/updater/win/signing/sign.py
 +++ b/chrome/updater/win/signing/sign.py
 @@ -98,28 +98,11 @@ class Signer:
