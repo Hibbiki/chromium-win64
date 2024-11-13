@@ -1,4 +1,4 @@
-From 47718cda4d686cf8429a16f9c8d2cc0524374235 Mon Sep 17 00:00:00 2001
+From 1ff79a0fdbe45b0562e8459b44889991c42a8fee Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -13,19 +13,19 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  5 files changed, 15 insertions(+), 21 deletions(-)
 
 diff --git a/build/config/unsafe_buffers_paths.txt b/build/config/unsafe_buffers_paths.txt
-index 99e985eacda99..551534e5bb5ca 100644
+index b58aca54b6f1f..cb73ae5a8a31f 100644
 --- a/build/config/unsafe_buffers_paths.txt
 +++ b/build/config/unsafe_buffers_paths.txt
-@@ -143,6 +143,7 @@
+@@ -142,6 +142,7 @@
  # Removing this directory may fail on the bot CI bot:
  # https://luci-milo.appspot.com/ui/p/chrome/builders/official/win-arm64-clang
  -chrome/installer/
 +-chrome/updater/
  
- # //codelabs is a directory that contains examples for developers to modify as
- # they learn about chromium development. This is indefinitely opt-out because
+ # Please check 'linux-v4l2-codec-rel' bot before removing this opt-out.
+ -media/gpu/v4l2/
 diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
-index 3ebf6fade3b81..7eef23b8ecb68 100644
+index 156e0fb555d13..4d65ec70fe9d3 100644
 --- a/chrome/install_static/chromium_install_modes.cc
 +++ b/chrome/install_static/chromium_install_modes.cc
 @@ -32,8 +32,7 @@ const InstallConstants kInstallModes[] = {
@@ -39,10 +39,10 @@ index 3ebf6fade3b81..7eef23b8ecb68 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 685413cefd768..599970e3374cd 100644
+index e66c9398412fe..d2ba37538284b 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -308,6 +308,7 @@ if (is_win || is_mac || is_linux) {
+@@ -315,6 +315,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -51,18 +51,18 @@ index 685413cefd768..599970e3374cd 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 0eb33d5298c6d..57f478898c4f5 100644
+index 743d9cc306313..f4afec9249806 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
-@@ -28,6 +28,7 @@
+@@ -29,6 +29,7 @@
  #include "base/logging.h"
  #include "base/path_service.h"
  #include "base/strings/strcat.h"
 +#include "base/strings/stringprintf.h"
  #include "base/strings/sys_string_conversions.h"
- #include "base/threading/platform_thread.h"
- #include "base/time/time.h"
-@@ -37,6 +38,7 @@
+ #include "base/synchronization/waitable_event.h"
+ #include "base/task/thread_pool.h"
+@@ -43,6 +44,7 @@
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
@@ -70,7 +70,7 @@ index 0eb33d5298c6d..57f478898c4f5 100644
  #include "chrome/updater/constants.h"
  #include "chrome/updater/tag.h"
  #include "chrome/updater/updater_branding.h"
-@@ -59,11 +61,19 @@ namespace {
+@@ -67,11 +69,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
@@ -82,14 +82,14 @@ index 0eb33d5298c6d..57f478898c4f5 100644
               : std::string();
 +#elif BUILDFLAG(GOOGLE_CHROME_FOR_TESTING_BRANDING)
 +  const install_static::InstallConstants& mode = install_static::kInstallModes[install_static::GOOGLE_CHROME_FOR_TESTING_INDEX];
-+  return base::StringPrintf("appguid=%S&appname=%S", mode.app_guid, mode.base_app_id);
++  return base::StringPrintf("appguid=%s&appname=%s", mode.app_guid, mode.base_app_id);
 +#else
 +  const install_static::InstallConstants& mode = install_static::kInstallModes[install_static::CHROMIUM_INDEX];
-+  return base::StringPrintf("appguid=%S&appname=%S", mode.app_guid, mode.base_app_id);
++  return base::StringPrintf("appguid=%s&appname=%s", mode.app_guid, mode.base_app_id);
 +#endif
  }
- }  // namespace
  
+ // Shows a splash screen "Initializing...".
 diff --git a/chrome/updater/win/signing/sign.py b/chrome/updater/win/signing/sign.py
 index fe16f52a91ec0..1fd3fae8c4484 100755
 --- a/chrome/updater/win/signing/sign.py
