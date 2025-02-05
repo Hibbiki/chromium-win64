@@ -1,4 +1,4 @@
-From 1daa12d6f0bb96af9e08588261a6eca3ed4e87cf Mon Sep 17 00:00:00 2001
+From 4feef71e4102962c460ef263c30e14a488fc3455 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
 Subject: [PATCH 3/4] Ensure bogus ElevationService is not being created during
@@ -6,11 +6,11 @@ Subject: [PATCH 3/4] Ensure bogus ElevationService is not being created during
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
- chrome/installer/setup/install_worker.cc | 4 ++++
- 1 file changed, 4 insertions(+)
+ chrome/installer/setup/install_worker.cc | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index f195311d990ef..bf6ec4f84ea56 100644
+index 33cf228858450..1fc4ab84f1a0e 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
 @@ -344,6 +344,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
@@ -21,15 +21,24 @@ index f195311d990ef..bf6ec4f84ea56 100644
  // Adds work items to register the Elevation Service with Windows. Only for
  // system level installs.
  void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
-@@ -367,6 +368,7 @@ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
-   install_service_work_item->set_best_effort(true);
+@@ -397,7 +398,6 @@ void AddTracingServiceWorkItems(const base::FilePath& tracing_service_path,
    list->AddWorkItem(install_service_work_item);
  }
-+#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING
  
- #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  // Adds work items to add the "store-dmtoken" command to Chrome's version key.
-@@ -975,10 +977,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
+ // This method is a no-op if this is anything other than system-level Chrome.
+ // The command is used when enrolling Chrome browser instances into enterprise
+@@ -993,7 +993,7 @@ void AddInstallWorkItems(const InstallParams& install_params,
+                                      install_list);
+   AddEnterpriseDeviceTrustWorkItems(installer_state, setup_path, new_version,
+                                     install_list);
+-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING
++#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   AddFirewallRulesWorkItems(installer_state, !current_version.IsValid(),
+                             install_list);
+ 
+@@ -1003,10 +1003,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
        installer_state.root_key(),
        GetNotificationHelperPath(target_path, new_version), install_list);
  
@@ -38,10 +47,23 @@ index f195311d990ef..bf6ec4f84ea56 100644
      AddElevationServiceWorkItems(
          GetElevationServicePath(target_path, new_version), install_list);
    }
-+#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING
++#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
  
    AddUpdateDowngradeVersionItem(installer_state.root_key(), current_version,
                                  new_version, install_list);
+@@ -1285,10 +1287,12 @@ void AddFinalizeUpdateWorkItems(const base::Version& new_version,
+   AddWerHelperRegistration(installer_state.root_key(),
+                            GetWerHelperPath(target_path, new_version), list);
+ 
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   if (installer_state.system_install()) {
+     AddTracingServiceWorkItems(GetTracingServicePath(target_path, new_version),
+                                list);
+   }
++#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ 
+   const std::wstring client_state_key = install_static::GetClientStateKeyPath();
+ 
 -- 
-2.41.0.windows.1
+2.47.0.windows.2
 

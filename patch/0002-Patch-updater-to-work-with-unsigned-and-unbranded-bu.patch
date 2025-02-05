@@ -1,4 +1,4 @@
-From 1ff79a0fdbe45b0562e8459b44889991c42a8fee Mon Sep 17 00:00:00 2001
+From e54faf7a93e920e62a652fa01de56faf741b6563 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -13,10 +13,10 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  5 files changed, 15 insertions(+), 21 deletions(-)
 
 diff --git a/build/config/unsafe_buffers_paths.txt b/build/config/unsafe_buffers_paths.txt
-index b58aca54b6f1f..cb73ae5a8a31f 100644
+index fc702d0596dbb..71fb21dc0de57 100644
 --- a/build/config/unsafe_buffers_paths.txt
 +++ b/build/config/unsafe_buffers_paths.txt
-@@ -142,6 +142,7 @@
+@@ -95,6 +95,7 @@
  # Removing this directory may fail on the bot CI bot:
  # https://luci-milo.appspot.com/ui/p/chrome/builders/official/win-arm64-clang
  -chrome/installer/
@@ -25,7 +25,7 @@ index b58aca54b6f1f..cb73ae5a8a31f 100644
  # Please check 'linux-v4l2-codec-rel' bot before removing this opt-out.
  -media/gpu/v4l2/
 diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
-index 156e0fb555d13..4d65ec70fe9d3 100644
+index a888596eda39a..38a177c2c5f8d 100644
 --- a/chrome/install_static/chromium_install_modes.cc
 +++ b/chrome/install_static/chromium_install_modes.cc
 @@ -32,8 +32,7 @@ const InstallConstants kInstallModes[] = {
@@ -39,10 +39,10 @@ index 156e0fb555d13..4d65ec70fe9d3 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index e66c9398412fe..d2ba37538284b 100644
+index 1ac223144b21d..26acff5a3c030 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -315,6 +315,7 @@ if (is_win || is_mac || is_linux) {
+@@ -360,6 +360,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -51,7 +51,7 @@ index e66c9398412fe..d2ba37538284b 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 743d9cc306313..f4afec9249806 100644
+index cdd08012986c4..933f0fee09857 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -29,6 +29,7 @@
@@ -126,5 +126,5 @@ index fe16f52a91ec0..1fd3fae8c4484 100755
      def _generate_target_manifest(self, appid, installer_path, manifest_path,
                                    manifest_dict_replacements):
 -- 
-2.41.0.windows.1
+2.47.0.windows.2
 

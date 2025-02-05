@@ -1,4 +1,4 @@
-From 9776cd890f4e8d499c3cb97416b22bc11ada1e34 Mon Sep 17 00:00:00 2001
+From 3fd6564116fd9f9535f4ebfd3675e4794864cd61 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 5 Aug 2021 02:09:34 +0200
 Subject: [PATCH 1/4] Patch installer to close previous browser instance on
@@ -10,7 +10,7 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 48 insertions(+)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index 04cb2e75f3671..f195311d990ef 100644
+index 1495bbb607df0..33cf228858450 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
 @@ -29,6 +29,8 @@
@@ -90,5 +90,5 @@ index 04cb2e75f3671..f195311d990ef 100644
      // Delete the archive from an existing install to save some disk space.
      base::FilePath old_installer_dir(
 -- 
-2.41.0.windows.1
+2.47.0.windows.2
 
