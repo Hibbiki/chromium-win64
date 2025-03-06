@@ -1,29 +1,16 @@
-From e54faf7a93e920e62a652fa01de56faf741b6563 Mon Sep 17 00:00:00 2001
+From f7a187606bb9d48321cddf8b68496de3548bd2cc Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
- build/config/unsafe_buffers_paths.txt         |  1 +
  .../install_static/chromium_install_modes.cc  |  3 +--
  chrome/updater/BUILD.gn                       |  1 +
- chrome/updater/win/installer/installer.cc     | 10 +++++++++
+ chrome/updater/win/installer/installer.cc     | 15 +++++++++++++
  chrome/updater/win/signing/sign.py            | 21 ++-----------------
- 5 files changed, 15 insertions(+), 21 deletions(-)
+ 4 files changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/build/config/unsafe_buffers_paths.txt b/build/config/unsafe_buffers_paths.txt
-index fc702d0596dbb..71fb21dc0de57 100644
---- a/build/config/unsafe_buffers_paths.txt
-+++ b/build/config/unsafe_buffers_paths.txt
-@@ -95,6 +95,7 @@
- # Removing this directory may fail on the bot CI bot:
- # https://luci-milo.appspot.com/ui/p/chrome/builders/official/win-arm64-clang
- -chrome/installer/
-+-chrome/updater/
- 
- # Please check 'linux-v4l2-codec-rel' bot before removing this opt-out.
- -media/gpu/v4l2/
 diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
 index a888596eda39a..38a177c2c5f8d 100644
 --- a/chrome/install_static/chromium_install_modes.cc
@@ -39,10 +26,10 @@ index a888596eda39a..38a177c2c5f8d 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 1ac223144b21d..26acff5a3c030 100644
+index 7781c85207fa5..57b67d877dd1d 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -360,6 +360,7 @@ if (is_win || is_mac || is_linux) {
+@@ -361,6 +361,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -51,10 +38,22 @@ index 1ac223144b21d..26acff5a3c030 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index cdd08012986c4..933f0fee09857 100644
+index cdd08012986c4..1002378298d49 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
-@@ -29,6 +29,7 @@
+@@ -11,6 +11,11 @@
+ // LZMA file, which is further compressed as one file, and inserted as a
+ // binary resource in the resource section of the setup program.
+ 
++#ifdef UNSAFE_BUFFERS_BUILD
++// TODO(crbug.com/40285824): Remove this and spanify to fix the errors.
++#pragma allow_unsafe_buffers
++#endif
++
+ #include "chrome/updater/win/installer/installer.h"
+ 
+ #include <shellapi.h>
+@@ -29,6 +34,7 @@
  #include "base/logging.h"
  #include "base/path_service.h"
  #include "base/strings/strcat.h"
@@ -62,7 +61,7 @@ index cdd08012986c4..933f0fee09857 100644
  #include "base/strings/sys_string_conversions.h"
  #include "base/synchronization/waitable_event.h"
  #include "base/task/thread_pool.h"
-@@ -43,6 +44,7 @@
+@@ -43,6 +49,7 @@
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
@@ -70,7 +69,7 @@ index cdd08012986c4..933f0fee09857 100644
  #include "chrome/updater/constants.h"
  #include "chrome/updater/tag.h"
  #include "chrome/updater/updater_branding.h"
-@@ -67,11 +69,19 @@ namespace {
+@@ -67,11 +74,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
