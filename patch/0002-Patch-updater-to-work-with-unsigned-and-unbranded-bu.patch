@@ -1,21 +1,21 @@
-From 00f2be6c2e1f4b1cae56d614efb0f4dfe088114a Mon Sep 17 00:00:00 2001
+From e0a94551823427c9dec15622dc4cec0c465ccc66 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
- .../install_static/chromium_install_modes.cc  |  3 +--
+ .../install_static/chromium_install_modes.h   |  3 +--
  chrome/updater/BUILD.gn                       |  1 +
  chrome/updater/win/installer/installer.cc     | 15 +++++++++++++
  chrome/updater/win/signing/sign.py            | 21 ++-----------------
  4 files changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
-index 156e0fb555d13..4d65ec70fe9d3 100644
---- a/chrome/install_static/chromium_install_modes.cc
-+++ b/chrome/install_static/chromium_install_modes.cc
-@@ -32,8 +32,7 @@ const InstallConstants kInstallModes[] = {
+diff --git a/chrome/install_static/chromium_install_modes.h b/chrome/install_static/chromium_install_modes.h
+index 7de32cf745755..9bbb8ecadd23a 100644
+--- a/chrome/install_static/chromium_install_modes.h
++++ b/chrome/install_static/chromium_install_modes.h
+@@ -32,8 +32,7 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
          .install_suffix =
              L"",  // Empty install_suffix for the primary install mode.
          .logo_suffix = L"",  // No logo suffix for the primary install mode.
@@ -26,10 +26,10 @@ index 156e0fb555d13..4d65ec70fe9d3 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 6eaef58e9cd16..57a9a7815f033 100644
+index 95a6f630ad299..3150624e29b18 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -362,6 +362,7 @@ if (is_win || is_mac || is_linux) {
+@@ -360,6 +360,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -38,7 +38,7 @@ index 6eaef58e9cd16..57a9a7815f033 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 8564fa476367a..9dcfe3309aba4 100644
+index f5bdc3778727b..22e5c563cd836 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
