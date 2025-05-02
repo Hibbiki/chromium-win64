@@ -1,0 +1,21 @@
+name: Publish to WinGet
+on:
+  release:
+    types: [released]
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - name: Get version
+        id: get-version
+        run: |
+          $VERSION="${{ github.event.release.name }}" -replace '^v?([0-9\.]+).*','$1'
+          "version=$VERSION" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+      - uses: vedantmgoyal9/winget-releaser@main
+        with:
+          identifier: Hibbiki.Chromium
+          version: ${{ steps.get-version.outputs.version }}
+          installers-regex: 'mini_installer\.sync\.exe'
+          max-versions-to-keep: 0
+          token: ${{ secrets.WINGET_TOKEN }}
