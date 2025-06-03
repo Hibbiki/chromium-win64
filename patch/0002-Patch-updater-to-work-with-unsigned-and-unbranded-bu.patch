@@ -1,4 +1,4 @@
-From e0a94551823427c9dec15622dc4cec0c465ccc66 Mon Sep 17 00:00:00 2001
+From 2cd0e2ec0ca4e4144a50d45d2c1316b0acc84d3d Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -26,10 +26,10 @@ index 7de32cf745755..9bbb8ecadd23a 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 95a6f630ad299..3150624e29b18 100644
+index be753c0ee2ce3..1c64d5d6ee715 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -360,6 +360,7 @@ if (is_win || is_mac || is_linux) {
+@@ -358,6 +358,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -38,7 +38,7 @@ index 95a6f630ad299..3150624e29b18 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index f5bdc3778727b..22e5c563cd836 100644
+index 25e161d28dc56..51df12a584b5e 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
@@ -66,10 +66,10 @@ index f5bdc3778727b..22e5c563cd836 100644
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
 +#include "chrome/install_static/install_modes.h"
+ #include "chrome/updater/branded_constants.h"
  #include "chrome/updater/constants.h"
  #include "chrome/updater/ping_configurator.h"
- #include "chrome/updater/tag.h"
-@@ -73,11 +80,19 @@ namespace {
+@@ -74,11 +81,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
