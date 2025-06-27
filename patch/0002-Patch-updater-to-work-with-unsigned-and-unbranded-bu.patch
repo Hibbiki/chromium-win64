@@ -1,4 +1,4 @@
-From 2cd0e2ec0ca4e4144a50d45d2c1316b0acc84d3d Mon Sep 17 00:00:00 2001
+From d7cac9b5a4c802632067d3fbc930aa3c80ba52c0 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -26,7 +26,7 @@ index 7de32cf745755..9bbb8ecadd23a 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index be753c0ee2ce3..1c64d5d6ee715 100644
+index e2305d7b194e0..92adaae4b70de 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
 @@ -358,6 +358,7 @@ if (is_win || is_mac || is_linux) {
@@ -90,7 +90,7 @@ index 25e161d28dc56..51df12a584b5e 100644
  
  // Shows a splash screen "Initializing...".
 diff --git a/chrome/updater/win/signing/sign.py b/chrome/updater/win/signing/sign.py
-index fe16f52a91ec0..1fd3fae8c4484 100755
+index 59a5c46bbcd36..1fd3fae8c4484 100755
 --- a/chrome/updater/win/signing/sign.py
 +++ b/chrome/updater/win/signing/sign.py
 @@ -98,28 +98,11 @@ class Signer:
@@ -113,9 +113,9 @@ index fe16f52a91ec0..1fd3fae8c4484 100755
 -            command += flags
 -            if self._certificate_file_path:
 -                command += ['/f', self._certificate_file_path]
--            if self._certificate_password:
--                command += ['/p', self._certificate_password]
--            if self._identity:
+-                if self._certificate_password:
+-                    command += ['/p', self._certificate_password]
+-            elif self._identity:
 -                command += ['/s', 'My', '/n', self._identity]
 -
 -            command += [in_file]
