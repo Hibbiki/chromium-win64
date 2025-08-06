@@ -50,5 +50,5 @@ fi
 
 # ---
 
-echo v$CUR_VERSION-r$(getBranchPos $CUR_VERSION) | tee ../out/revision >&2
+echo v$CUR_VERSION-r$(getBranchPos $CUR_VERSION) | tee ../out/.revision >&2
 echo $CUR_VERSION

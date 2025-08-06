@@ -1,4 +1,4 @@
-From 69b5a84b80e3a5cbf66b0bed3bea0c8967ae0faf Mon Sep 17 00:00:00 2001
+From 2f9be0801fbebd9e3ba3e55405fcd246b68a94f0 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
 Subject: [PATCH 3/4] Ensure bogus ElevationService is not being created during
@@ -10,7 +10,7 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index f1dec3e02d2b5..547bf7066013f 100644
+index 20d6c9369eeb4..a05913e2a4b60 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
 @@ -345,6 +345,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
@@ -29,16 +29,16 @@ index f1dec3e02d2b5..547bf7066013f 100644
  // Adds work items to add the "store-dmtoken" command to Chrome's version key.
  // This method is a no-op if this is anything other than system-level Chrome.
  // The command is used when enrolling Chrome browser instances into enterprise
-@@ -1030,7 +1030,7 @@ void AddInstallWorkItems(const InstallParams& install_params,
-                                      install_list);
-   AddEnterpriseDeviceTrustWorkItems(installer_state, setup_path, new_version,
+@@ -1054,7 +1054,7 @@ void AddInstallWorkItems(const InstallParams& install_params,
                                      install_list);
+   AddPlatformExperienceHelperWorkItems(installer_state, new_version,
+                                        install_list);
 -#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING
 +#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
    AddFirewallRulesWorkItems(installer_state, !current_version.IsValid(),
                              install_list);
  
-@@ -1040,10 +1040,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
+@@ -1064,10 +1064,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
        installer_state.root_key(),
        GetNotificationHelperPath(target_path, new_version), install_list);
  
@@ -51,7 +51,7 @@ index f1dec3e02d2b5..547bf7066013f 100644
  
    AddUpdateDowngradeVersionItem(installer_state.root_key(), current_version,
                                  new_version, install_list);
-@@ -1323,10 +1325,12 @@ void AddFinalizeUpdateWorkItems(const InstallationState& original_state,
+@@ -1347,10 +1349,12 @@ void AddFinalizeUpdateWorkItems(const InstallationState& original_state,
    AddWerHelperRegistration(installer_state.root_key(),
                             GetWerHelperPath(target_path, new_version), list);
  

@@ -16,6 +16,6 @@ jobs:
         with:
           identifier: Hibbiki.Chromium
           version: ${{ steps.get-version.outputs.version }}
-          installers-regex: 'mini_installer\.sync\.exe'
+          installers-regex: 'mini_installer\.exe'
           max-versions-to-keep: 0
           token: ${{ secrets.WINGET_TOKEN }}

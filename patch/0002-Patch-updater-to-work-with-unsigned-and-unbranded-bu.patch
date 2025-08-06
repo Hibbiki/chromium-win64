@@ -1,4 +1,4 @@
-From d7cac9b5a4c802632067d3fbc930aa3c80ba52c0 Mon Sep 17 00:00:00 2001
+From 14a121509a65c4faa707fd7d705d4119e151dda6 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -26,7 +26,7 @@ index 7de32cf745755..9bbb8ecadd23a 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index e2305d7b194e0..92adaae4b70de 100644
+index 65e5c411f6038..a91f6e912b8a9 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
 @@ -358,6 +358,7 @@ if (is_win || is_mac || is_linux) {
@@ -38,7 +38,7 @@ index e2305d7b194e0..92adaae4b70de 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 25e161d28dc56..51df12a584b5e 100644
+index f5b930591ebbc..878caf2a9d725 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
@@ -90,10 +90,10 @@ index 25e161d28dc56..51df12a584b5e 100644
  
  // Shows a splash screen "Initializing...".
 diff --git a/chrome/updater/win/signing/sign.py b/chrome/updater/win/signing/sign.py
-index 59a5c46bbcd36..1fd3fae8c4484 100755
+index d22b29c4875fc..6f7a0bbfc616e 100755
 --- a/chrome/updater/win/signing/sign.py
 +++ b/chrome/updater/win/signing/sign.py
-@@ -98,28 +98,11 @@ class Signer:
+@@ -117,28 +117,11 @@ class Signer:
          self._sign_flags = sign_flags
  
      def _add_tagging_cert(self, in_file, out_file):
