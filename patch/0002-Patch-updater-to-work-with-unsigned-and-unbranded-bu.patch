@@ -1,4 +1,4 @@
-From 14a121509a65c4faa707fd7d705d4119e151dda6 Mon Sep 17 00:00:00 2001
+From b6d0c246ec55919274446bcb7701a17eb5c4af7c Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -26,7 +26,7 @@ index 7de32cf745755..9bbb8ecadd23a 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 65e5c411f6038..a91f6e912b8a9 100644
+index 58400305cb10a..b2fa2db65c701 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
 @@ -358,6 +358,7 @@ if (is_win || is_mac || is_linux) {
@@ -38,7 +38,7 @@ index 65e5c411f6038..a91f6e912b8a9 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index f5b930591ebbc..878caf2a9d725 100644
+index 2444634092235..71f13cfa910f5 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
@@ -53,7 +53,7 @@ index f5b930591ebbc..878caf2a9d725 100644
  #include "chrome/updater/win/installer/installer.h"
  
  #include <shellapi.h>
-@@ -30,6 +35,7 @@
+@@ -31,6 +36,7 @@
  #include "base/memory/ref_counted.h"
  #include "base/path_service.h"
  #include "base/strings/strcat.h"
@@ -61,7 +61,7 @@ index f5b930591ebbc..878caf2a9d725 100644
  #include "base/strings/utf_string_conversions.h"
  #include "base/synchronization/waitable_event.h"
  #include "base/task/thread_pool.h"
-@@ -44,6 +50,7 @@
+@@ -45,6 +51,7 @@
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
@@ -69,7 +69,7 @@ index f5b930591ebbc..878caf2a9d725 100644
  #include "chrome/updater/branded_constants.h"
  #include "chrome/updater/constants.h"
  #include "chrome/updater/ping_configurator.h"
-@@ -74,11 +81,19 @@ namespace {
+@@ -75,11 +82,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
@@ -125,5 +125,5 @@ index d22b29c4875fc..6f7a0bbfc616e 100755
      def _generate_target_manifest(self, appid, installer_path, manifest_path,
                                    manifest_dict_replacements):
 -- 
-2.47.0.windows.2
+2.50.1.windows.1
 

@@ -1,4 +1,4 @@
-From 833c2c739133f87164ac852f76c337b7e594598f Mon Sep 17 00:00:00 2001
+From 09ce76599632777f51894548f69000c29f2d975c Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Thu, 3 Aug 2023 11:25:53 +0200
 Subject: [PATCH 4/4] Fix Grit branding args for policy_templates
@@ -115,5 +115,5 @@ index 283ea725c5a18..f50b5ce395308 100755
      config['version'] = defines['version']
    if 'major_version' in defines:
 -- 
-2.47.0.windows.2
+2.50.1.windows.1
 
