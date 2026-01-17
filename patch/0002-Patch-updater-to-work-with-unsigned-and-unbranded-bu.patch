@@ -1,18 +1,18 @@
-From b6d0c246ec55919274446bcb7701a17eb5c4af7c Mon Sep 17 00:00:00 2001
+From 7a0c840a1732f84b1e1805fc7998a12fddca1af6 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
- .../install_static/chromium_install_modes.h   |  3 +--
+ .../install_static/chromium_install_modes.h   |  3 +-
  chrome/updater/BUILD.gn                       |  1 +
- chrome/updater/win/installer/installer.cc     | 15 +++++++++++++
- chrome/updater/win/signing/sign.py            | 21 ++-----------------
- 4 files changed, 19 insertions(+), 21 deletions(-)
+ chrome/updater/win/installer/installer.cc     | 15 +++++++
+ chrome/updater/win/signing/sign.py            | 42 +------------------
+ 4 files changed, 19 insertions(+), 42 deletions(-)
 
 diff --git a/chrome/install_static/chromium_install_modes.h b/chrome/install_static/chromium_install_modes.h
-index 7de32cf745755..9bbb8ecadd23a 100644
+index 0cf937413e08a..e2b57a664660f 100644
 --- a/chrome/install_static/chromium_install_modes.h
 +++ b/chrome/install_static/chromium_install_modes.h
 @@ -32,8 +32,7 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
@@ -26,10 +26,10 @@ index 7de32cf745755..9bbb8ecadd23a 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 58400305cb10a..b2fa2db65c701 100644
+index ae9d83075d2eb..64efb84497a14 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -358,6 +358,7 @@ if (is_win || is_mac || is_linux) {
+@@ -377,6 +377,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -38,7 +38,7 @@ index 58400305cb10a..b2fa2db65c701 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 2444634092235..71f13cfa910f5 100644
+index 543e55df64519..bd732c5103745 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
@@ -90,10 +90,10 @@ index 2444634092235..71f13cfa910f5 100644
  
  // Shows a splash screen "Initializing...".
 diff --git a/chrome/updater/win/signing/sign.py b/chrome/updater/win/signing/sign.py
-index d22b29c4875fc..6f7a0bbfc616e 100755
+index 42becb59dd93c..8304169764b80 100755
 --- a/chrome/updater/win/signing/sign.py
 +++ b/chrome/updater/win/signing/sign.py
-@@ -117,28 +117,11 @@ class Signer:
+@@ -124,49 +124,11 @@ class Signer:
          self._sign_flags = sign_flags
  
      def _add_tagging_cert(self, in_file, out_file):
@@ -101,13 +101,13 @@ index d22b29c4875fc..6f7a0bbfc616e 100755
 -        subprocess.run(
 -            [self._tagging_exe, '--set-tag',
 -             '--out=%s' % out_file, in_file],
--            check=True)
+-            check=True,
+-            stdout=subprocess.DEVNULL)
 +        shutil.copy(in_file, out_file)
          return out_file
  
      def _sign_item(self, in_file):
 -        """Sign an executable in-place."""
--        # Retries may be required: lore states the timestamp server is flaky.
 -        for flags in self._sign_flags:
 -            command = [self._signtool_exe, 'sign']
 -            command += flags
@@ -119,7 +119,28 @@ index d22b29c4875fc..6f7a0bbfc616e 100755
 -                command += ['/s', 'My', '/n', self._identity]
 -
 -            command += [in_file]
--            subprocess.run(command, check=True)
+-
+-            # Timestamp server is flaky, retry sign if timestamp server is used
+-            attempts = 10 if ({'/tr', '/tseal'} & set(command)) else 1
+-            delay = 1
+-            for attempt in range(1, attempts + 1):
+-                try:
+-                    subprocess.run(command,
+-                                   check=True,
+-                                   stdout=subprocess.DEVNULL)
+-                except subprocess.CalledProcessError:
+-                    if attempt == attempts:
+-                        raise
+-                    logging.exception(
+-                        'Sign attempt failed, attempts left: %d',
+-                        attempts - attempt
+-                    )
+-                    logging.info(
+-                        'Waiting for %d seconds before next attempt...', delay
+-                    )
+-                    time.sleep(delay)
+-                    continue
+-                break
 +        return
  
      def _generate_target_manifest(self, appid, installer_path, manifest_path,
