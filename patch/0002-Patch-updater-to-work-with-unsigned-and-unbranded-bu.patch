@@ -1,4 +1,4 @@
-From 7a0c840a1732f84b1e1805fc7998a12fddca1af6 Mon Sep 17 00:00:00 2001
+From 2127d2986cb1d520538e527672234f66d5ea15c4 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -26,7 +26,7 @@ index 0cf937413e08a..e2b57a664660f 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index ae9d83075d2eb..64efb84497a14 100644
+index 7dd79383dc33f..8a91b05b3a77c 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
 @@ -377,6 +377,7 @@ if (is_win || is_mac || is_linux) {
@@ -38,7 +38,7 @@ index ae9d83075d2eb..64efb84497a14 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 543e55df64519..bd732c5103745 100644
+index 8ac15e717c231..8be5d7f8b0a47 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
@@ -60,8 +60,8 @@ index 543e55df64519..bd732c5103745 100644
 +#include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/synchronization/waitable_event.h"
- #include "base/task/thread_pool.h"
-@@ -45,6 +51,7 @@
+ #include "base/task/single_thread_task_runner.h"
+@@ -46,6 +52,7 @@
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
@@ -69,7 +69,7 @@ index 543e55df64519..bd732c5103745 100644
  #include "chrome/updater/branded_constants.h"
  #include "chrome/updater/constants.h"
  #include "chrome/updater/ping_configurator.h"
-@@ -75,11 +82,19 @@ namespace {
+@@ -76,11 +83,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
