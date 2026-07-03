@@ -1,4 +1,4 @@
-From 7c53645e27f825ca1459b69e89b31b49b4b5aba0 Mon Sep 17 00:00:00 2001
+From a834bc8d3eb9da321ece66be31f4c090d5b5bd64 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
 Subject: [PATCH 3/4] Ensure bogus ElevationService is not being created during
@@ -6,30 +6,61 @@ Subject: [PATCH 3/4] Ensure bogus ElevationService is not being created during
 
 Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 ---
- chrome/installer/setup/install_worker.cc | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ chrome/installer/setup/install_worker.cc | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index b6820904334e2..dda1c5262d2de 100644
+index ed64014424fdd..0e5b2bfb0cd58 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
-@@ -337,6 +337,7 @@ void AddChromeWorkItems(const InstallParams& install_params,
-       ->set_best_effort(true);
- }
- 
-+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
- // Adds work items to register the Elevation Service with Windows. Only for
- // system level installs.
- void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
-@@ -421,7 +422,6 @@ void AddTracingServiceWorkItems(const InstallationState& original_state,
+@@ -112,6 +112,8 @@ void AddInstallerCopyTasks(const InstallParams& install_params,
    }
  }
  
--#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wunused-function"
+ // Adds work items to register the Elevation Service with Windows. Only for
+ // system level installs.
+ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
+@@ -134,6 +136,7 @@ void AddElevationServiceWorkItems(const base::FilePath& elevation_service_path,
+       {install_static::GetElevatorClsid()}, {install_static::GetElevatorIid()});
+   list->AddWorkItem(install_service_work_item);
+ }
++#pragma clang diagnostic pop
+ 
+ // Create Version key for a product (if not already present) and sets the new
+ // product version as the last step.
+@@ -357,10 +360,12 @@ void AddChromeWorkItems(const InstallParams& install_params,
+   AddInstallerCopyTasks(install_params, install_list);
+ 
+   if (installer_state.system_install()) {
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+     // Register the elevation service, which is required for proper browser
+     // operation.
+     AddElevationServiceWorkItems(
+         GetElevationServicePath(target_path, new_version), install_list);
++#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   }
+ 
+   // Move chrome.exe to new_chrome.exe if the target is in use; otherwise,
+@@ -413,6 +418,8 @@ void AddChromeWorkItems(const InstallParams& install_params,
+   install_list->AddWorkItem(manifest_item.release());
+ }
+ 
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wunused-function"
+ // Adds work items to register or unregister the elevated tracing service.
+ void AddTracingServiceWorkItems(const InstallationState& original_state,
+                                 const base::FilePath& tracing_service_path,
+@@ -473,6 +480,7 @@ void AddTracingServiceWorkItems(const InstallationState& original_state,
+         ->set_best_effort(true);
+   }
+ }
++#pragma clang diagnostic pop
+ 
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  // Adds work items to add the "store-dmtoken" command to Chrome's version key.
- // This method is a no-op if this is anything other than system-level Chrome.
- // The command is used when enrolling Chrome browser instances into enterprise
-@@ -1049,7 +1049,7 @@ void AddInstallWorkItems(const InstallParams& install_params,
+@@ -1063,7 +1071,7 @@ void AddInstallWorkItems(const InstallParams& install_params,
                                      install_list);
    AddPlatformExperienceHelperWorkItems(installer_state, new_version,
                                         install_list);
@@ -38,32 +69,17 @@ index b6820904334e2..dda1c5262d2de 100644
    AddFirewallRulesWorkItems(installer_state, !current_version.IsValid(),
                              install_list);
  
-@@ -1059,10 +1059,12 @@ void AddInstallWorkItems(const InstallParams& install_params,
-       installer_state.root_key(),
-       GetNotificationHelperPath(target_path, new_version), install_list);
- 
-+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-   if (installer_state.system_install()) {
-     AddElevationServiceWorkItems(
-         GetElevationServicePath(target_path, new_version), install_list);
-   }
-+#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
- 
-   AddUpdateDowngradeVersionItem(installer_state.root_key(), current_version,
-                                 new_version, install_list);
-@@ -1345,10 +1347,12 @@ void AddFinalizeUpdateWorkItems(const InstallationState& original_state,
-   AddWerHelperRegistration(installer_state.root_key(),
+@@ -1343,8 +1351,10 @@ void AddFinalizeUpdateWorkItems(const InstallationState& original_state,
                             GetWerHelperPath(target_path, new_version), list);
  
-+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
    if (installer_state.system_install()) {
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
      AddTracingServiceWorkItems(
          original_state, GetTracingServicePath(target_path, new_version), list);
-   }
 +#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   }
  
    const std::wstring client_state_key = install_static::GetClientStateKeyPath();
- 
 -- 
 2.50.1.windows.1
 

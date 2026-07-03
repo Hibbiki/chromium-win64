@@ -1,4 +1,4 @@
-From a62aafd4fbed0c091e9741dbd5fb516dd6ce718e Mon Sep 17 00:00:00 2001
+From 20f0eb422fdde11be75eb21126448cf15964ebe3 Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Wed, 12 Jun 2024 02:14:41 +0200
 Subject: [PATCH 2/4] Patch updater to work with unsigned and unbranded builds
@@ -12,7 +12,7 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  4 files changed, 19 insertions(+), 42 deletions(-)
 
 diff --git a/chrome/install_static/chromium_install_modes.h b/chrome/install_static/chromium_install_modes.h
-index ee62888f89705..44d5f11fe8f49 100644
+index f29a8228fe611..c976c66bd9c29 100644
 --- a/chrome/install_static/chromium_install_modes.h
 +++ b/chrome/install_static/chromium_install_modes.h
 @@ -43,8 +43,7 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
@@ -26,10 +26,10 @@ index ee62888f89705..44d5f11fe8f49 100644
          .base_app_id = L"Chromium",                // A distinct base_app_id.
          .browser_prog_id_prefix = L"ChromiumHTM",  // Browser ProgID prefix.
 diff --git a/chrome/updater/BUILD.gn b/chrome/updater/BUILD.gn
-index 0377d4d9b2220..d08ff723d9e1f 100644
+index 57c149a40d19a..845daf60d8d77 100644
 --- a/chrome/updater/BUILD.gn
 +++ b/chrome/updater/BUILD.gn
-@@ -385,6 +385,7 @@ if (is_win || is_mac || is_linux) {
+@@ -390,6 +390,7 @@ if (is_win || is_mac || is_linux) {
          "//chrome/installer/util:constants",
          "//chrome/installer/util:metainstaller_utils",
          "//chrome/installer/util:work_item",
@@ -38,7 +38,7 @@ index 0377d4d9b2220..d08ff723d9e1f 100644
          "//chrome/updater/app/server/win:updater_idl_system",
          "//chrome/updater/app/server/win:updater_idl_user",
 diff --git a/chrome/updater/win/installer/installer.cc b/chrome/updater/win/installer/installer.cc
-index 9bef5575d5dc4..f371874982a94 100644
+index 6b38555ee58fc..10a236cec96f2 100644
 --- a/chrome/updater/win/installer/installer.cc
 +++ b/chrome/updater/win/installer/installer.cc
 @@ -11,6 +11,11 @@
@@ -61,7 +61,7 @@ index 9bef5575d5dc4..f371874982a94 100644
  #include "base/strings/utf_string_conversions.h"
  #include "base/synchronization/waitable_event.h"
  #include "base/task/single_thread_task_runner.h"
-@@ -48,6 +54,7 @@
+@@ -47,6 +53,7 @@
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
  #include "chrome/installer/util/lzma_util.h"
@@ -69,7 +69,7 @@ index 9bef5575d5dc4..f371874982a94 100644
  #include "chrome/updater/branded_constants.h"
  #include "chrome/updater/constants.h"
  #include "chrome/updater/get_updater_scope.h"
-@@ -79,11 +86,19 @@ namespace {
+@@ -78,11 +85,19 @@ namespace {
  // program file image used to create this process. The implementation of this
  // function only handles UTF8 tags.
  std::string ExtractTag() {
