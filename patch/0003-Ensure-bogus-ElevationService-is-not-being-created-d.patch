@@ -1,4 +1,4 @@
-From 3a499acbb7a928912b5c6c8a6cb901c90b037760 Mon Sep 17 00:00:00 2001
+From d9d313e7c603986cec71c99145f45fcee9b2c7fe Mon Sep 17 00:00:00 2001
 From: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 01:33:35 +0200
 Subject: [PATCH 3/4] Ensure bogus ElevationService is not being created during
@@ -10,7 +10,7 @@ Signed-off-by: Hibiki Tachibana <57486057+Hibbiki@users.noreply.github.com>
  1 file changed, 10 insertions(+)
 
 diff --git a/chrome/installer/setup/install_worker.cc b/chrome/installer/setup/install_worker.cc
-index 34405af1acb41..d110e5bd49a31 100644
+index f50e0eef23109..d4bc3816d12bf 100644
 --- a/chrome/installer/setup/install_worker.cc
 +++ b/chrome/installer/setup/install_worker.cc
 @@ -113,6 +113,8 @@ void AddInstallerCopyTasks(const InstallParams& install_params,
@@ -30,7 +30,7 @@ index 34405af1acb41..d110e5bd49a31 100644
  
  // Create Version key for a product (if not already present) and sets the new
  // product version as the last step.
-@@ -363,10 +366,12 @@ void AddChromeWorkItems(const InstallParams& install_params,
+@@ -364,10 +367,12 @@ void AddChromeWorkItems(const InstallParams& install_params,
    AddInstallerCopyTasks(install_params, install_list);
  
    if (installer_state.system_install()) {
@@ -43,7 +43,7 @@ index 34405af1acb41..d110e5bd49a31 100644
    }
  
    // Move chrome.exe to new_chrome.exe if the target is in use; otherwise,
-@@ -419,6 +424,8 @@ void AddChromeWorkItems(const InstallParams& install_params,
+@@ -420,6 +425,8 @@ void AddChromeWorkItems(const InstallParams& install_params,
    install_list->AddWorkItem(manifest_item.release());
  }
  
@@ -52,7 +52,7 @@ index 34405af1acb41..d110e5bd49a31 100644
  // Adds work items to register or unregister the elevated tracing service.
  void AddTracingServiceWorkItems(const InstallationState& original_state,
                                  const base::FilePath& tracing_service_path,
-@@ -480,6 +487,7 @@ void AddTracingServiceWorkItems(const InstallationState& original_state,
+@@ -481,6 +488,7 @@ void AddTracingServiceWorkItems(const InstallationState& original_state,
          ->set_best_effort(true);
    }
  }
@@ -60,7 +60,7 @@ index 34405af1acb41..d110e5bd49a31 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  // Adds work items to add the "store-dmtoken" command to Chrome's version key.
-@@ -1381,8 +1389,10 @@ void AddFinalizeUpdateWorkItems(const InstallationState& original_state,
+@@ -1440,8 +1448,10 @@ void AddFinalizeUpdateWorkItems(const InstallationState& original_state,
                             GetWerHelperPath(target_path, new_version), list);
  
    if (installer_state.system_install()) {
